@@ -1,0 +1,411 @@
+---
+clients:
+  samsungaci:
+    name: null
+    enabled: true
+    compress: false
+    types:
+      topdeals:
+        enabled: false
+        sources:
+        - url: "https://samsungaci.com/wp-json/wc/store/v1/products?category=top-deals"
+          maxFetch: null
+          weight: 1
+        maxFetch: 10
+        maxView: 10
+        manualPercentage: 0
+        weight: 1
+      mobile:
+        enabled: true
+        sources:
+        - url: "https://samsungaci.com/wp-json/wc/store/v1/products?category=mobile"
+          maxFetch: null
+          weight: 1
+        maxFetch: 10
+        maxView: 10
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 30
+    maxView: 30
+    weight: 1
+  noon:
+    name: null
+    enabled: true
+    compress: false
+    types:
+      bestsellers:
+        enabled: true
+        sources:
+        - url: "https://www.noon.com/_svc/catalog/api/v3/personalization-products/bestsellers?limit=10"
+          maxFetch: null
+          weight: 1
+        maxFetch: 20
+        maxView: 20
+        manualPercentage: 0
+        weight: 1
+      lowestprice:
+        enabled: true
+        sources:
+        - url: "https://www.noon.com/_vs/nc/mp-customer-catalog-api/api/v3/u/lowest-prices-yfs25-ae/?f[isCarousel]=true&f[min_offer_price][]=7_days&f[min_offer_price][]=30_days&f[min_offer_price][]=365_days&isCarouselView=true&productsOnly=true&limit=50"
+          maxFetch: null
+          weight: 1
+        maxFetch: 20
+        maxView: 20
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 40
+    maxView: 40
+    weight: 1
+  amazon:
+    name: null
+    enabled: true
+    compress: false
+    types:
+      lowestprice:
+        enabled: true
+        sources:
+        - url: "https://www.amazon.com/gp/goldbox"
+          maxFetch: null
+          weight: 1
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  amazonae:
+    name: null
+    enabled: true
+    compress: false
+    types:
+      bestsellers:
+        enabled: true
+        sources:
+        - url: "https://www.amazon.ae/"
+          maxFetch: null
+          weight: 1
+        maxFetch: 20
+        maxView: 20
+        manualPercentage: 0
+        weight: 1
+      lowestprice:
+        enabled: true
+        sources:
+        - url: "https://www.amazon.ae/"
+          maxFetch: null
+          weight: 1
+        maxFetch: 20
+        maxView: 20
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  facebook:
+    name: null
+    enabled: true
+    compress: false
+    types:
+      other:
+        enabled: true
+        sources:
+        - url: "https://www.facebook.com/alfaridstores"
+          maxFetch: 3
+          weight: 1
+        - url: "https://www.facebook.com/handiwansam"
+          maxFetch: 3
+          weight: 1
+        - url: "https://www.facebook.com/profile.php?id=100083045153349"
+          maxFetch: 3
+          weight: 1
+        maxFetch: 6
+        maxView: 6
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  walmart:
+    name: null
+    enabled: true
+    compress: false
+    types:
+      toppicks:
+        enabled: true
+        sources:
+        - url: "https://www.walmart.com/"
+          maxFetch: null
+          weight: 1
+        maxFetch: 40
+        maxView: 40
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  ebay:
+    enabled: true
+    compress: false
+    types:
+      topdeals:
+        enabled: false
+        sources:
+        - url: "https://www.ebay.com"
+        maxFetch: 40
+      featured:
+        enabled: true
+        sources:
+          - url: "https://www.ebay.com/globaldeals"
+        maxFetch: 40
+    maxFetch: 40
+    maxView: 40
+    weight: 1
+  bestbuy:
+    enabled: true
+    compress: false
+    types:
+      featured:
+        enabled: true
+        sources:
+          - url: "https://www.bestbuy.com/?intl=nosplash"
+        maxFetch: 40
+      dealoftheday:
+        enabled: true
+        sources:
+          - url: "https://www.bestbuy.com/site/misc/deal-of-the-day/pcmcat248000050016.c"
+        maxFetch: 40
+    maxFetch: 100
+  newegg:
+    name: "Newegg"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  target:
+    name: "Target"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  etsy:
+    name: "Etsy"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  aliexpress:
+    name: "AliExpress"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  temu:
+    name: "Temu"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  bhphoto:
+    name: "B&H Photo"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  wayfair:
+    name: "Wayfair"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  asos:
+    name: "ASOS"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  zalando:
+    name: "Zalando"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  carrefour:
+    name: "Carrefour"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  jarir:
+    name: "Jarir"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  extra:
+    name: "eXtra"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  mumzworld:
+    name: "Mumzworld"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  decathlon:
+    name: "Decathlon"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+  mediamarkt:
+    name: "MediaMarkt"
+    enabled: false
+    compress: false
+    types:
+      topdeals:
+        enabled: true
+        sources: []
+        maxFetch: 100
+        maxView: 100
+        manualPercentage: 0
+        weight: 1
+    maxFetch: 100
+    maxView: 100
+    weight: 1
+allDealTypes:
+- "toppicks"
+- "mobile"
+- "bestsellers"
+- "topdeals"
+- "lowestprice"
+- "featured"
+- "other"

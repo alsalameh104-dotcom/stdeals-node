@@ -1,0 +1,90 @@
+spring:
+  application:
+    name: demo
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stdeals
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: alsalameh102@gmail.com
+    password: bgcrotgwgbfxktab
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    com.stdleals: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web.client.RestClient: DEBUG
+    org.apache.http: DEBUG
+    org.springframework.web.servlet.resource: INFO
+
+    # Hibernate SQL
+    org.hibernate.SQL: INFO
+
+    # Hibernate 6/7 parameter binding
+    org.hibernate.orm.jdbc.bind: INFO
+
+    org:
+      springframework.cache: INFO
+    com.stdleals.integrate.common.FlareSolverrService: DEBUG
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/xml,text/plain,text/css,application/javascript
+    min-response-size: 1024
+
+app:
+  base-url: http://localhost:5173
+  jwt-secret: daf66e01593f61a15b857cf433aae03a005812b31234e149036bcc8dee755dbb
+  jwt-expiration-ms: 86400000
+  cors:
+    allowed-origins: http://localhost:5173
+
+clients:
+  file: ./config/clients.yml
+
+scheduler:
+  deals:
+    enabled: false
+    cron: "0 0 */6 * * *"
+
+storage:
+  images:
+    root: stdeals/images
+    public-url: /images
+
+flaresolverr:
+  url: http://localhost:8191/v1
+  timeout: 360000
+  session_ttl: 3600
+
+homepage:
+  size: 500
+
+deals:
+  query-limit: 5000
+  latest-split-index: 50
+  default-sync-status: PENDING
+
+image-upload:
+  url: http://localhost:8082/api/internal/images/upload
+  api-key: 83011bb6bee7ba54ab966b8cb1a7406f581f7c08ef9d806d298484914765ae06

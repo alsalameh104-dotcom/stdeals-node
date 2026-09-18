@@ -1,0 +1,548 @@
+2026-09-14 00:13:31.089 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : 28326e95-92fa-41fe-b539-cf3f33939b58
+Duration (ms)   : 1384
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Error solving the challenge. HTTPConnectionPool(host='localhost', port=55259): Max retries exceeded with url: /session/378f58bfca58b6ba5b981f4b8296a2c4/elements (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=55259): Failed to establish a new connection: [Errno 111] Connection refused\"))", "startTimestamp": 1789344809709, "endTimestamp": 1789344810986, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:13:33.325 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : c7df8398-3025-409c-9397-cec92c96f9d2
+Duration (ms)   : 9
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: The session doesn't exist.", "startTimestamp": 1789344813321, "endTimestamp": 1789344813322, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:19:08.990 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : ecf44088-922d-4f94-becb-9d706bd3c136
+Duration (ms)   : 188187
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Error solving the challenge. HTTPConnectionPool(host='localhost', port=47297): Read timed out. (read timeout=120)", "startTimestamp": 1789344989089, "endTimestamp": 1789345133388, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:23:22.891 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : a62a0f40-c62f-4647-81a3-14e80b01130d
+Duration (ms)   : 151900
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Error solving the challenge. HTTPConnectionPool(host='localhost', port=47649): Read timed out. (read timeout=120)", "startTimestamp": 1789345253904, "endTimestamp": 1789345382087, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:23:26.987 ERROR [scheduling-1] c.s.i.store.AbstractDealProvider - Failed to fetch HTML: https://www.amazon.com/gp/goldbox
+java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.fetchHtml(FlareSolverrService.java:342)
+	at com.stdleals.integrate.common.FlareSolverrService.fetchTargetHtml(FlareSolverrService.java:366)
+	at com.stdleals.integrate.store.AbstractDealProvider.fetchHtmlWithScroll(AbstractDealProvider.java:253)
+	at com.stdleals.integrate.store.amazon.AmazonProvider.fetchHtml(AmazonProvider.java:24)
+	at com.stdleals.integrate.store.html.HtmlProvider.getPerUrl(HtmlProvider.java:82)
+	at com.stdleals.integrate.store.AbstractDealProvider.lambda$process$0(AbstractDealProvider.java:122)
+	at java.base/java.util.LinkedHashMap.forEach(LinkedHashMap.java:721)
+	at com.stdleals.integrate.store.AbstractDealProvider.process(AbstractDealProvider.java:90)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:58)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 00:26:52.591 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : 235bb807-3159-4d97-9bd6-fa2634e8b98d
+Duration (ms)   : 151907
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Message: session not created: cannot connect to chrome at 127.0.0.1:41771\nfrom chrome not reachable; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#sessionnotcreatedexception\nStacktrace:\n#0 0x556853db018e <unknown>\n#1 0x5568536673e9 <unknown>\n#2 0x556853653ffc <unknown>\n#3 0x5568536a65f3 <unknown>\n#4 0x55685369d2b8 <unknown>\n#5 0x5568536ec537 <unknown>\n#6 0x5568536aa4f9 <unknown>\n#7 0x5568536ab111 <unknown>\n#8 0x556853d725e6 <unknown>\n#9 0x556853d7101d <unknown>\n#10 0x556853d709ca <unknown>\n#11 0x556853d5ff2a <unknown>\n#12 0x556853d71833 <unknown>\n#13 0x556853d4aa56 <unknown>\n#14 0x556853d9b1a5 <unknown>\n#15 0x556853d9b392 <unknown>\n#16 0x556853daebdf <unknown>\n#17 0x7fdc758691f5 <unknown>\n", "startTimestamp": 1789345463784, "endTimestamp": 1789345602809, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:26:53.087 ERROR [scheduling-1] c.s.i.store.AbstractDealProvider - Sync failed for session 'amazonae'
+java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 00:26:55.306 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : e352dd9f-3f91-4c69-9225-40cb142e8bcb
+Duration (ms)   : 823
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: The session doesn't exist.", "startTimestamp": 1789345615187, "endTimestamp": 1789345615187, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:26:55.405 ERROR [scheduling-1] com.stdleals.sync.DealSyncService - ❌ [amazonae] Sync failed after 156325 ms: java.io.IOException: FlareSolverr returned HTTP 500
+java.lang.RuntimeException: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:68)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	... 21 common frames omitted
+2026-09-14 00:31:52.291 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : 93128cee-c810-47bb-a035-56f0b1040f46
+Duration (ms)   : 296083
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Message: session not created: cannot connect to chrome at 127.0.0.1:33811\nfrom chrome not reachable; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#sessionnotcreatedexception\nStacktrace:\n#0 0x55a439cdb18e <unknown>\n#1 0x55a4395923e9 <unknown>\n#2 0x55a43957effc <unknown>\n#3 0x55a4395d15f3 <unknown>\n#4 0x55a4395c82b8 <unknown>\n#5 0x55a439617537 <unknown>\n#6 0x55a4395d54f9 <unknown>\n#7 0x55a4395d6111 <unknown>\n#8 0x55a439c9d5e6 <unknown>\n#9 0x55a439c9c01d <unknown>\n#10 0x55a439c9b9ca <unknown>\n#11 0x55a439c8af2a <unknown>\n#12 0x55a439c9c833 <unknown>\n#13 0x55a439c75a56 <unknown>\n#14 0x55a439cc61a5 <unknown>\n#15 0x55a439cc6392 <unknown>\n#16 0x55a439cd9bdf <unknown>\n#17 0x7f2834e711f5 <unknown>\n", "startTimestamp": 1789345615994, "endTimestamp": 1789345844379, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:31:58.484 ERROR [scheduling-1] c.s.i.store.AbstractDealProvider - Sync failed for session 'bestbuy'
+java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 00:34:05.689 ERROR [scheduling-1] com.stdleals.sync.DealSyncService - ❌ [bestbuy] Sync failed after 430001 ms: java.io.IOException: FlareSolverr returned HTTP 500
+java.lang.RuntimeException: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:68)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	... 21 common frames omitted
+2026-09-14 00:37:55.508 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : 2ee2872a-9deb-4f81-9c35-3a2faa622fff
+Duration (ms)   : 227515
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Message: session not created: cannot connect to chrome at 127.0.0.1:39123\nfrom chrome not reachable; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#sessionnotcreatedexception\nStacktrace:\n#0 0x564fecf1218e <unknown>\n#1 0x564fec7c93e9 <unknown>\n#2 0x564fec7b5ffc <unknown>\n#3 0x564fec8085f3 <unknown>\n#4 0x564fec7ff2b8 <unknown>\n#5 0x564fec84e537 <unknown>\n#6 0x564fec80c4f9 <unknown>\n#7 0x564fec80d111 <unknown>\n#8 0x564feced45e6 <unknown>\n#9 0x564feced301d <unknown>\n#10 0x564feced29ca <unknown>\n#11 0x564fecec1f2a <unknown>\n#12 0x564feced3833 <unknown>\n#13 0x564feceaca56 <unknown>\n#14 0x564fecefd1a5 <unknown>\n#15 0x564fecefd392 <unknown>\n#16 0x564fecf10bdf <unknown>\n#17 0x7f4096c441f5 <unknown>\n", "startTimestamp": 1789346049785, "endTimestamp": 1789346216194, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:37:57.983 ERROR [scheduling-1] c.s.i.store.AbstractDealProvider - Sync failed for session 'ebay'
+java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 00:38:47.987 ERROR [scheduling-1] com.stdleals.sync.DealSyncService - ❌ [ebay] Sync failed after 280894 ms: java.io.IOException: FlareSolverr returned HTTP 500
+java.lang.RuntimeException: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:68)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	... 21 common frames omitted
+2026-09-14 00:41:41.881 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : 63b4edea-3e5b-4e7e-a847-a2a54636476a
+Duration (ms)   : 172523
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Message: session not created\nfrom disconnected: unable to connect to renderer; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#sessionnotcreatedexception\nStacktrace:\n#0 0x556bc22f118e <unknown>\n#1 0x556bc1ba85c4 <unknown>\n#2 0x556bc1be7da1 <unknown>\n#3 0x556bc1bde9f6 <unknown>\n#4 0x556bc1c2d537 <unknown>\n#5 0x556bc1beb4f9 <unknown>\n#6 0x556bc1bec111 <unknown>\n#7 0x556bc22b35e6 <unknown>\n#8 0x556bc22b201d <unknown>\n#9 0x556bc22b19ca <unknown>\n#10 0x556bc22a0f2a <unknown>\n#11 0x556bc22b2833 <unknown>\n#12 0x556bc228ba56 <unknown>\n#13 0x556bc22dc1a5 <unknown>\n#14 0x556bc22dc392 <unknown>\n#15 0x556bc22efbdf <unknown>\n#16 0x7f36222f91f5 <unknown>\n", "startTimestamp": 1789346329486, "endTimestamp": 1789346496697, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:41:42.397 ERROR [scheduling-1] c.s.i.store.AbstractDealProvider - Sync failed for session 'facebook'
+java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 00:41:44.590 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : aaead016-7055-48fd-9213-27e47f125fbf
+Duration (ms)   : 1302
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: The session doesn't exist.", "startTimestamp": 1789346504509, "endTimestamp": 1789346504509, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:41:44.679 ERROR [scheduling-1] com.stdleals.sync.DealSyncService - ❌ [facebook] Sync failed after 175731 ms: java.io.IOException: FlareSolverr returned HTTP 500
+java.lang.RuntimeException: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:68)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	... 21 common frames omitted
+2026-09-14 00:45:44.998 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : c61a9b41-c5ad-4de8-8a72-231af3608331
+Duration (ms)   : 239102
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: Message: session not created: cannot connect to chrome at 127.0.0.1:59107\nfrom chrome not reachable; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#sessionnotcreatedexception\nStacktrace:\n#0 0x564e590a718e <unknown>\n#1 0x564e5895e3e9 <unknown>\n#2 0x564e5894affc <unknown>\n#3 0x564e5899d5f3 <unknown>\n#4 0x564e589942b8 <unknown>\n#5 0x564e589e3537 <unknown>\n#6 0x564e589a14f9 <unknown>\n#7 0x564e589a2111 <unknown>\n#8 0x564e590695e6 <unknown>\n#9 0x564e5906801d <unknown>\n#10 0x564e590679ca <unknown>\n#11 0x564e59056f2a <unknown>\n#12 0x564e59068833 <unknown>\n#13 0x564e59041a56 <unknown>\n#14 0x564e590921a5 <unknown>\n#15 0x564e59092392 <unknown>\n#16 0x564e590a5bdf <unknown>\n#17 0x7f8f1a1641f5 <unknown>\n", "startTimestamp": 1789346505797, "endTimestamp": 1789346692494, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:45:50.498 ERROR [scheduling-1] c.s.i.store.AbstractDealProvider - Sync failed for session 'walmart'
+java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 00:47:16.990 ERROR [scheduling-1] c.s.i.common.FlareSolverrService - 
+================= FlareSolverr HTTP Error =================
+Request ID      : c1743dc3-da2d-43d2-bd7a-cd52bb702d2d
+Duration (ms)   : 51492
+HTTP Status     : 500
+
+Response:
+{"status": "error", "message": "Error: The session doesn't exist.", "startTimestamp": 1789346832888, "endTimestamp": 1789346832994, "version": "3.5.0"}
+===========================================================
+
+2026-09-14 00:47:24.684 ERROR [scheduling-1] com.stdleals.sync.DealSyncService - ❌ [walmart] Sync failed after 339878 ms: java.io.IOException: FlareSolverr returned HTTP 500
+java.lang.RuntimeException: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:68)
+	at com.stdleals.sync.DealSyncService.runProvider(DealSyncService.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at com.stdleals.sync.DealSyncService.syncDeals(DealSyncService.java:36)
+	at com.stdleals.schedule.DealScheduler.runSync(DealScheduler.java:23)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.runInternal(ScheduledMethodRunnable.java:128)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.lambda$run$1(ScheduledMethodRunnable.java:122)
+	at io.micrometer.observation.Observation.observe(Observation.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:122)
+	at org.springframework.scheduling.config.Task$OutcomeTrackingRunnable.run(Task.java:88)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:94)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: FlareSolverr returned HTTP 500
+	at com.stdleals.integrate.common.FlareSolverrService.executeByFlareSolverr(FlareSolverrService.java:131)
+	at com.stdleals.integrate.common.FlareSolverrService.createSession(FlareSolverrService.java:225)
+	at com.stdleals.integrate.store.AbstractDealProvider.sync(AbstractDealProvider.java:56)
+	... 21 common frames omitted
+2026-09-14 04:30:06.491 ERROR [http-nio-8080-exec-9] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 31597ms (total=0, active=0, idle=0, waiting=0)] [n/a]] with root cause
+java.net.SocketTimeoutException: Connect timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:752)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:731)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 04:34:01.896 ERROR [http-nio-8080-exec-8] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 30393ms (total=0, active=0, idle=0, waiting=0)] [n/a]] with root cause
+java.net.SocketTimeoutException: Connect timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:752)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:731)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 04:34:43.780 ERROR [http-nio-8080-exec-1] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 30315ms (total=0, active=0, idle=0, waiting=2)] [n/a]] with root cause
+java.net.SocketTimeoutException: Connect timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:752)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:731)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 04:34:44.880 ERROR [http-nio-8080-exec-7] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 30303ms (total=0, active=0, idle=0, waiting=1)] [n/a]] with root cause
+java.net.SocketTimeoutException: Connect timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:752)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:731)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2026-09-14 04:34:44.883 ERROR [http-nio-8080-exec-10] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection [HikariPool-1 - Connection is not available, request timed out after 30307ms (total=0, active=0, idle=0, waiting=0)] [n/a]] with root cause
+java.net.SocketTimeoutException: Connect timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:633)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:752)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:731)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)

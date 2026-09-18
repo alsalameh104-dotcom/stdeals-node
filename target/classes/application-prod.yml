@@ -1,0 +1,18 @@
+flaresolverr:
+  url: http://157.151.212.233:8191/v1
+  timeout: 360000
+
+scheduler:
+  deals:
+    enabled: true
+    cron: "0 0 */12 * * *"
+
+deals:
+  default-sync-status: ACTIVE
+
+app:
+  base-url: https://smartdeals.duckdns.org
+  jwt-secret: daf66e01593f61a15b857cf433aae03a005812b31234e149036bcc8dee755dbb
+  jwt-expiration-ms: 86400000
+  cors:
+    allowed-origins: https://smartdeals.duckdns.org
