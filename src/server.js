@@ -55,6 +55,31 @@ app.post(
     (req, res) => res.sendStatus(204)
 );
 
+app.use(express.urlencoded({ extended: false }));
+app.delete(
+    '/api/internal/images/delete',
+    requireUploadApiKey,
+    (req, res) => {
+        const { provider, filename } = req.body;
+
+        if (!provider || !filename) {
+            return res.status(400).send('provider and filename are required');
+        }
+
+        const filePath = path.join(
+            config.imageRoot,
+            provider,
+            filename
+        );
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        res.sendStatus(204);
+    }
+);
+
 app.post('/auth/login', async(req,res,next)=>{try{res.json({token:await login(req.body.email,req.body.password)});}catch(e){next(e);}});
 app.post('/auth/register', async(req,res,next)=>{try{res.json(await register(req.body.email,req.body.password));}catch(e){next(e);}});
 
