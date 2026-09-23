@@ -59,13 +59,21 @@ async function activeDeals({ store } = {}) {
   const cached = cache.get(key); if (cached) return cached;
   const cfg = readClients();
   const stores = enabledStores(cfg);
+  const limit = Number(5000);
   if (store && !stores.includes(store)) return [];
   const params = [stores];
   let where = `WHERE enabled = true AND status = 'ACTIVE' AND expiry_date > NOW() AND store_name = ANY($1::text[])`;
   if (store) { params.push(store); where += ` AND store_name = $2`; }
-  const r = await query(`${DEAL_SELECT} ${where} ORDER BY updated_at DESC LIMIT ${Number(5000)}`, params);
+  const r = await query(
+      `${DEAL_SELECT} ${where} ORDER BY updated_at DESC LIMIT ${limit + 1}`,
+      params
+  );
+
   let deals = await hydrate(r.rows);
-  deals = applyLimits(deals, cfg);
+
+  if (deals.length > limit) {
+      deals = applyLimits(deals, cfg);
+  }
   deals.sort(sortUpdated);
   // Match current Java behavior: shuffle final public list.
   for (let i = deals.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deals[i], deals[j]] = [deals[j], deals[i]]; }

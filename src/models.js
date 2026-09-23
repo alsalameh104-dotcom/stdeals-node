@@ -24,7 +24,6 @@ function mapDeal(row, images = []) {
     dealType: row.deal_type ? String(row.deal_type).toLowerCase() : null,
     storeName: row.store_name, location: row.location, enabled: row.enabled,
     expiryDate: row.expiry_date, createdAt: row.created_at, updatedAt: row.updated_at,
-    sourceUrl: row.source_url, dealSource: row.deal_source ? String(row.deal_source).toUpperCase() : null,
     status: row.status ? String(row.status).toUpperCase() : null,
     images
   };
