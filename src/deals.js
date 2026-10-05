@@ -23,7 +23,11 @@ async function hydrate(rows) {
   const imageMap = await getImages(rows.map(r => r.id));
   return rows.map(r => mapDeal(r, imageMap.get(String(r.id)) || []));
 }
-function enabledStores(cfg) { return Object.entries(cfg.clients || {}).filter(([,c]) => c.enabled).map(([name]) => name); }
+function enabledStores(cfg) {
+  return Object.entries(cfg.clients || {})
+      .filter(([, c]) => c.enabled !== false)
+      .map(([name]) => name);
+}
 function applyLimits(deals, cfg) {
   const result = [];
   const byStore = new Map();
