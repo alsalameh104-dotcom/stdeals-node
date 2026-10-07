@@ -21,5 +21,5 @@ app:
     allowed-origins: http://157.151.212.233:5173
 
 image-upload:
-  url: https://smartdeals.duckdns.org/api/internal/images/upload
+  url: https://dealsoftweek.com/api/internal/images/upload
   api-key: 3896ce9644b0719552390bae80062b0cbb27755d8c33c1343b52ea7a90c6d330
