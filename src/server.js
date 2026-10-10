@@ -10,6 +10,7 @@ const nodemailer = require('nodemailer');
 const { config, readClients, writeClients } = require('./config');
 const { login, register, requireAuth,requireUploadApiKey } = require('./auth');
 const deals = require('./deals');
+const productPrices = require('./productPrices');
 const multer = require('multer');
 
 fs.mkdirSync(config.imageRoot, { recursive: true });
@@ -86,6 +87,19 @@ app.post('/auth/register', async(req,res,next)=>{try{res.json(await register(req
 app.get('/api/deals', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await deals.activeDeals());}catch(e){next(e);}});
 app.get('/api/deals/store/:storeName', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await deals.activeDeals({store:req.params.storeName}));}catch(e){next(e);}});
 app.get('/api/deals/:id', async(req,res,next)=>{try{const d=await deals.getById(req.params.id);if(!d)return res.sendStatus(404);res.set('Cache-Control','public, max-age=600');res.json(d);}catch(e){next(e);}});
+
+// Matches Java GET /api/products/{productId}/prices.
+app.get('/api/products/:productId/prices', async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        if (!/^\d{1,19}$/.test(productId) || BigInt(productId) > 9223372036854775807n) {
+            return res.status(400).json({ error: 'Invalid productId' });
+        }
+        res.json(await productPrices.getComparablePrices(productId));
+    } catch (err) {
+        next(err);
+    }
+});
 
 app.get('/api/common/providers', async(req,res,next)=>{try{const cfg=readClients();res.json(Object.entries(cfg.clients||{}).filter(([,c])=>c.enabled).map(([k])=>k));}catch(e){next(e);}});
 app.get('/api/common/deal-types', async(req,res,next)=>{try{const cfg=readClients();const s=new Set();for(const c of Object.values(cfg.clients||{})){if(c.enabled)for(const t of Object.keys(c.types||{}))s.add(t.toLowerCase());}res.json([...s]);}catch(e){next(e);}});

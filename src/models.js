@@ -17,14 +17,48 @@ function mapImage(row) {
 }
 function mapDeal(row, images = []) {
   if (!row) return null;
+
   return {
-    id: Number(row.id), slug: row.slug, title: row.title, description: row.description,
-    price: row.price == null ? null : Number(row.price), originalPrice: row.original_price == null ? null : Number(row.original_price),
-    currency: row.currency, imageUrl: row.image_url, productUrl: row.product_url,
-    dealType: row.deal_type ? String(row.deal_type).toLowerCase() : null,
-    storeName: row.store_name, location: row.location, enabled: row.enabled,
-    expiryDate: row.expiry_date, createdAt: row.created_at, updatedAt: row.updated_at,
-    status: row.status ? String(row.status).toUpperCase() : null,
+    id: Number(row.id),
+    slug: row.slug,
+    title: row.title,
+    description: row.description,
+
+    price: row.price == null ? null : Number(row.price),
+    originalPrice: row.original_price == null
+        ? null
+        : Number(row.original_price),
+
+    country: row.country,
+    currency: row.currency,
+
+    priceUsd: row.price_usd == null
+        ? null
+        : Number(row.price_usd),
+
+    productId: row.product_id == null
+        ? null
+        : Number(row.product_id),
+
+    imageUrl: row.image_url,
+    productUrl: row.product_url,
+
+    dealType: row.deal_type
+        ? String(row.deal_type).toLowerCase()
+        : null,
+
+    storeName: row.store_name,
+    location: row.location,
+    enabled: row.enabled,
+
+    expiryDate: row.expiry_date,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+
+    status: row.status
+        ? String(row.status).toUpperCase()
+        : null,
+
     images
   };
 }

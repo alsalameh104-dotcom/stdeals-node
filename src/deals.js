@@ -4,10 +4,31 @@ const { mapDeal } = require('./models');
 const { readClients } = require('./config');
 
 const DEAL_SELECT = `
-  SELECT id, slug, title, description, price, original_price, currency, image_url,
-         product_url, deal_type, store_name, location, enabled, expiry_date,
-         created_at, updated_at, source_url, deal_source, status
-  FROM deal`;
+  SELECT
+    id,
+    slug,
+    title,
+    description,
+    price,
+    original_price,
+    country,
+    currency,
+    price_usd,
+    product_id,
+    image_url,
+    product_url,
+    deal_type,
+    store_name,
+    location,
+    enabled,
+    expiry_date,
+    created_at,
+    updated_at,
+    source_url,
+    deal_source,
+    status
+  FROM deal
+`;
 
 async function getImages(ids) {
   if (!ids.length) return new Map();
