@@ -49,19 +49,34 @@ function enabledStores(cfg) {
       .filter(([, c]) => c.enabled !== false)
       .map(([name]) => name);
 }
+// Public deals must belong to enabled providers AND enabled deal types.
+// Build this filter for PostgreSQL so disabled deals do not occupy the query limit.
+function enabledStoreTypePairs(cfg) {
+  const stores = [];
+  const types = [];
+  for (const [storeName, client] of Object.entries(cfg.clients || {})) {
+    if (!client || client.enabled === false) continue;
+    for (const [typeName, typeConfig] of Object.entries(client.types || {})) {
+      if (!typeConfig || typeConfig.enabled === false) continue;
+      stores.push(storeName);
+      types.push(typeName.toLowerCase());
+    }
+  }
+  return { stores, types };
+}
 function applyLimits(deals, cfg) {
   const result = [];
   const byStore = new Map();
   for (const d of deals) { if (!byStore.has(d.storeName)) byStore.set(d.storeName, []); byStore.get(d.storeName).push(d); }
   for (const [store, storeDeals] of byStore) {
     const cc = cfg.clients?.[store];
-    if (!cc?.enabled) continue;
+    if (!cc || cc.enabled === false) continue;
     const byType = new Map();
     for (const d of storeDeals) { if (!byType.has(d.dealType)) byType.set(d.dealType, []); byType.get(d.dealType).push(d); }
     const clientDeals = [];
     for (const [type, typeDeals] of byType) {
       const tc = cc.types?.[type];
-      if (!tc?.enabled) continue;
+      if (!tc || tc.enabled === false) continue;
       const maxView = Number(tc.maxView ?? tc.maxFetch ?? 10);
       const manualPct = Number(tc.manualPercentage ?? 0);
       const auto = typeDeals.filter(d => d.dealSource === 'AUTO').sort(sortUpdated);
@@ -83,12 +98,18 @@ async function activeDeals({ store } = {}) {
   const key = `active:${store || '*'}`;
   const cached = cache.get(key); if (cached) return cached;
   const cfg = readClients();
-  const stores = enabledStores(cfg);
+  const allowed = enabledStoreTypePairs(cfg);
   const limit = Number(5000);
-  if (store && !stores.includes(store)) return [];
-  const params = [stores];
-  let where = `WHERE enabled = true AND status = 'ACTIVE' AND expiry_date > NOW() AND store_name = ANY($1::text[])`;
-  if (store) { params.push(store); where += ` AND store_name = $2`; }
+  if (!allowed.stores.length || (store && !allowed.stores.includes(store))) return [];
+  const params = [allowed.stores, allowed.types];
+  let where = `WHERE enabled = true AND status = 'ACTIVE' AND expiry_date > NOW()
+    AND EXISTS (
+      SELECT 1
+      FROM unnest($1::text[], $2::text[]) AS permitted(store, type)
+      WHERE permitted.store = deal.store_name
+        AND permitted.type = LOWER(deal.deal_type::text)
+    )`;
+  if (store) { params.push(store); where += ` AND store_name = $3`; }
   const r = await query(
       `${DEAL_SELECT} ${where} ORDER BY updated_at DESC LIMIT ${limit + 1}`,
       params
@@ -97,7 +118,7 @@ async function activeDeals({ store } = {}) {
   let deals = await hydrate(r.rows);
 
   if (deals.length > limit) {
-      deals = applyLimits(deals, cfg);
+    deals = applyLimits(deals, cfg);
   }
   deals.sort(sortUpdated);
   // Match current Java behavior: shuffle final public list.
@@ -119,7 +140,7 @@ async function create(deal, source = 'MANUAL') {
   const r = await query(`INSERT INTO deal
     (slug,title,description,price,original_price,currency,image_url,original_image_url,product_url,deal_type,store_name,location,enabled,expiry_date,source_url,deal_source,status,metadata)
     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id`, [
-      deal.slug,deal.title,deal.description,deal.price ?? 0,deal.originalPrice ?? 0,deal.currency ?? 'JOD',deal.imageUrl,deal.originalImageUrl ?? null,deal.productUrl,deal.dealType?.toUpperCase(),deal.storeName,deal.location,deal.enabled ?? true,deal.expiryDate,deal.sourceUrl,source,deal.status ?? 'ACTIVE',deal.metadata ?? null]);
+    deal.slug,deal.title,deal.description,deal.price ?? 0,deal.originalPrice ?? 0,deal.currency ?? 'JOD',deal.imageUrl,deal.originalImageUrl ?? null,deal.productUrl,deal.dealType?.toUpperCase(),deal.storeName,deal.location,deal.enabled ?? true,deal.expiryDate,deal.sourceUrl,source,deal.status ?? 'ACTIVE',deal.metadata ?? null]);
   cache.clear(); return getById(r.rows[0].id);
 }
 async function update(id, data) {

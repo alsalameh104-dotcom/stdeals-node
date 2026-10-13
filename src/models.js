@@ -59,6 +59,8 @@ function mapDeal(row, images = []) {
         ? String(row.status).toUpperCase()
         : null,
 
+    dealSource: row.deal_source,
+
     images
   };
 }
