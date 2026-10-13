@@ -116,7 +116,7 @@ clients:
       clearance:
         sources:
           - url: "https://www.target.com/c/clearance/-/N-5q0ga"
-            useFile: true
+            useFile: false
 
   etsy:
     # Global marketplace; market/currency not fixed.
