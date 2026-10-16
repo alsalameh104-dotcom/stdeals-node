@@ -99,7 +99,7 @@ async function activeDeals({ store } = {}) {
   const cached = cache.get(key); if (cached) return cached;
   const cfg = readClients();
   const allowed = enabledStoreTypePairs(cfg);
-  const limit = Number(5000);
+  const limit = Number(200000);
   if (!allowed.stores.length || (store && !allowed.stores.includes(store))) return [];
   const params = [allowed.stores, allowed.types];
   let where = `WHERE enabled = true AND status = 'ACTIVE' AND expiry_date > NOW()

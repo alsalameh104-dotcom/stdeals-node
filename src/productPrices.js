@@ -1,3 +1,4 @@
+
 const { query } = require('./db');
 const { mapDeal } = require('./models');
 
@@ -18,6 +19,7 @@ async function getComparablePrices(productId) {
       AND d.enabled = TRUE
       AND d.status = 'ACTIVE'
       AND d.price_usd IS NOT NULL
+      AND (d.expiry_date IS NULL OR d.expiry_date > CURRENT_TIMESTAMP)
     ORDER BY d.price_usd ASC, d.id ASC
   `, [productId]);
 
@@ -32,9 +34,14 @@ async function getComparablePrices(productId) {
   `, [rows.map(row => row.id)]);
 
   const imagesByDeal = new Map();
+
   for (const image of imageRows) {
     const dealId = String(image.deal_id);
-    if (!imagesByDeal.has(dealId)) imagesByDeal.set(dealId, []);
+
+    if (!imagesByDeal.has(dealId)) {
+      imagesByDeal.set(dealId, []);
+    }
+
     imagesByDeal.get(dealId).push({
       id: Number(image.id),
       imageUrl: image.image_url,
@@ -43,9 +50,11 @@ async function getComparablePrices(productId) {
   }
 
   return rows.map(row => {
-    // PostgreSQL NUMERIC is returned as a string by pg. Java serializes
-    // BigDecimal as a JSON number, so use a number for frontend compatibility.
+    // PostgreSQL NUMERIC is returned as a string by pg.
+    // Java serializes BigDecimal as a JSON number,
+    // so use a number for frontend compatibility.
     const priceUsd = Number(row.price_usd);
+
     const deal = {
       ...mapDeal(row, imagesByDeal.get(String(row.id)) || []),
       country: row.country,
