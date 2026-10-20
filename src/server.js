@@ -11,6 +11,7 @@ const { config, readClients, writeClients } = require('./config');
 const { login, register, requireAuth,requireUploadApiKey } = require('./auth');
 const deals = require('./deals');
 const productPrices = require('./productPrices');
+const dealPagination = require('./dealPagination');
 const multer = require('multer');
 
 fs.mkdirSync(config.imageRoot, { recursive: true });
@@ -83,6 +84,20 @@ app.delete(
 
 app.post('/auth/login', async(req,res,next)=>{try{res.json({token:await login(req.body.email,req.body.password)});}catch(e){next(e);}});
 app.post('/auth/register', async(req,res,next)=>{try{res.json(await register(req.body.email,req.body.password));}catch(e){next(e);}});
+
+// Java-compatible public search and facets; place before /api/deals/:id.
+app.get('/api/deals/search', async (req, res, next) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.json(await dealPagination.searchDeals(req.query));
+    } catch (err) { next(err); }
+});
+app.get('/api/deals/facets', async (req, res, next) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.json(await dealPagination.getFacets());
+    } catch (err) { next(err); }
+});
 
 app.get('/api/deals', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await deals.activeDeals());}catch(e){next(e);}});
 app.get('/api/deals/store/:storeName', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await deals.activeDeals({store:req.params.storeName}));}catch(e){next(e);}});
