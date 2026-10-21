@@ -10,8 +10,9 @@ const nodemailer = require('nodemailer');
 const { config, readClients, writeClients } = require('./config');
 const { login, register, requireAuth,requireUploadApiKey } = require('./auth');
 const deals = require('./deals');
-const productPrices = require('./productPrices');
 const dealPagination = require('./dealPagination');
+const dealSearch = require('./dealSearch');
+const productPrices = require('./productPrices');
 const multer = require('multer');
 
 fs.mkdirSync(config.imageRoot, { recursive: true });
@@ -42,6 +43,12 @@ app.use('/images', express.static(config.imageRoot, { maxAge:'7d', immutable:fal
 const contactLimiter=rateLimit({windowMs:10*60*1000,max:5,standardHeaders:true,legacyHeaders:false});
 const loginLimiter=rateLimit({windowMs:10*60*1000,max:5,standardHeaders:true,legacyHeaders:false});
 const dealsLimiter=rateLimit({windowMs:60*1000,max:100,standardHeaders:true,legacyHeaders:false});
+// More restrictive budget for requests that execute PostgreSQL searches.
+const searchLimiter=rateLimit({windowMs:60*1000,max:30,standardHeaders:true,legacyHeaders:false});
+function conditionalSearchLimiter(req,res,next) {
+    return typeof req.query.search === 'string' && req.query.search.trim()
+        ? searchLimiter(req,res,next) : next();
+}
 const defaultLimiter=rateLimit({windowMs:60*1000,max:200,standardHeaders:true,legacyHeaders:false});
 
 app.use((req,res,next)=>{ if(req.path.startsWith('/api/contact')) return contactLimiter(req,res,next); if(req.path.startsWith('/auth/login')) return loginLimiter(req,res,next); if(req.path.startsWith('/api/deals')) return dealsLimiter(req,res,next); if(req.path.startsWith('/api')||req.path.startsWith('/auth')) return defaultLimiter(req,res,next); next(); });
@@ -85,22 +92,51 @@ app.delete(
 app.post('/auth/login', async(req,res,next)=>{try{res.json({token:await login(req.body.email,req.body.password)});}catch(e){next(e);}});
 app.post('/auth/register', async(req,res,next)=>{try{res.json(await register(req.body.email,req.body.password));}catch(e){next(e);}});
 
-// Java-compatible public search and facets; place before /api/deals/:id.
-app.get('/api/deals/search', async (req, res, next) => {
+// Cursor-based public feed. Keep the legacy /api/deals response until React is migrated.
+app.get('/api/deals/page', conditionalSearchLimiter, async (req, res, next) => {
     try {
         res.set('Cache-Control', 'no-store');
-        res.json(await dealPagination.searchDeals(req.query));
-    } catch (err) { next(err); }
-});
-app.get('/api/deals/facets', async (req, res, next) => {
-    try {
-        res.set('Cache-Control', 'no-store');
-        res.json(await dealPagination.getFacets());
+        res.json(await dealPagination.getPage({
+            store: req.query.store,
+            type: req.query.type,
+            search: req.query.search,
+            size: req.query.size,
+            cursor: req.query.cursor
+        }));
     } catch (err) { next(err); }
 });
 
-app.get('/api/deals', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await deals.activeDeals());}catch(e){next(e);}});
-app.get('/api/deals/store/:storeName', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await deals.activeDeals({store:req.params.storeName}));}catch(e){next(e);}});
+app.get('/api/deals/store/:storeName/page', conditionalSearchLimiter, async (req, res, next) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.json(await dealPagination.getPage({
+            store: req.params.storeName,
+            type: req.query.type,
+            search: req.query.search,
+            size: req.query.size,
+            cursor: req.query.cursor
+        }));
+    } catch (err) { next(err); }
+});
+
+// Advanced PostgreSQL search — matches Java /api/deals/search (page-based).
+app.get('/api/deals/search', searchLimiter, async (req,res,next) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.json(await dealSearch.searchDeals(req.query));
+    } catch (error) { next(error); }
+});
+
+// Enabled provider/type facets — matches Java /api/deals/facets.
+app.get('/api/deals/facets', async (req,res,next) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        res.json(await dealSearch.getPublicDealFacets());
+    } catch (error) { next(error); }
+});
+
+app.get('/api/deals', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await dealPagination.getAll());}catch(e){next(e);}});
+app.get('/api/deals/store/:storeName', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await dealPagination.getAll(req.params.storeName));}catch(e){next(e);}});
 app.get('/api/deals/:id', async(req,res,next)=>{try{const d=await deals.getById(req.params.id);if(!d)return res.sendStatus(404);res.set('Cache-Control','public, max-age=600');res.json(d);}catch(e){next(e);}});
 
 // Matches Java GET /api/products/{productId}/prices.
@@ -122,11 +158,11 @@ app.get('/api/common/deal-types', async(req,res,next)=>{try{const cfg=readClient
 app.get('/api/admin/deals', admin, async(req,res,next)=>{try{res.json(await deals.getAdmin(req.query.status));}catch(e){next(e);}});
 app.get('/api/admin/deals/pageable-deals', admin, async(req,res,next)=>{try{res.json(await deals.pageable({provider:req.query.provider,type:req.query.type,search:req.query.search,page:Number(req.query.page||0),size:Number(req.query.size||30)}));}catch(e){next(e);}});
 app.get('/api/admin/deals/:id', admin, async(req,res,next)=>{try{const d=await deals.getById(req.params.id);if(!d)return res.sendStatus(404);res.json(d);}catch(e){next(e);}});
-app.post('/api/admin/deals', admin, async(req,res,next)=>{try{res.status(201).json(await deals.create(req.body));}catch(e){next(e);}});
-app.put('/api/admin/deals/:id', admin, async(req,res,next)=>{try{res.json(await deals.update(req.params.id,req.body));}catch(e){next(e);}});
-app.delete('/api/admin/deals/:id', admin, async(req,res,next)=>{try{await deals.remove(req.params.id);res.sendStatus(204);}catch(e){next(e);}});
-app.post('/api/admin/deals/bulk', admin, async(req,res,next)=>{try{res.status(201).json(await deals.bulkCreate(req.body));}catch(e){next(e);}});
-app.put('/api/admin/deals/bulk-status', admin, async(req,res,next)=>{try{res.json(await deals.bulkStatus(req.body.ids,req.body.status));}catch(e){next(e);}});
+app.post('/api/admin/deals', admin, async(req,res,next)=>{try{const result=await deals.create(req.body);dealPagination.invalidate();res.status(201).json(result);}catch(e){next(e);}});
+app.put('/api/admin/deals/:id', admin, async(req,res,next)=>{try{const result=await deals.update(req.params.id,req.body);dealPagination.invalidate();res.json(result);}catch(e){next(e);}});
+app.delete('/api/admin/deals/:id', admin, async(req,res,next)=>{try{await deals.remove(req.params.id);dealPagination.invalidate();res.sendStatus(204);}catch(e){next(e);}});
+app.post('/api/admin/deals/bulk', admin, async(req,res,next)=>{try{const result=await deals.bulkCreate(req.body);dealPagination.invalidate();res.status(201).json(result);}catch(e){next(e);}});
+app.put('/api/admin/deals/bulk-status', admin, async(req,res,next)=>{try{const result=await deals.bulkStatus(req.body.ids,req.body.status);dealPagination.invalidate();res.json(result);}catch(e){next(e);}});
 
 app.get('/api/admin/deals/providers', admin, (req,res,next)=>{try{const cfg=readClients();res.json(Object.entries(cfg.clients||{}).filter(([,c])=>c.enabled).map(([k])=>k));}catch(e){next(e);}});
 app.get('/api/admin/deals/config', admin, (req,res,next)=>{try{res.type('text/yaml').send(require('yaml').stringify(readClients()));}catch(e){next(e);}});

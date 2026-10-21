@@ -27,7 +27,14 @@ const config = {
     from: env('MAIL_FROM', env('MAIL_USER', ''))
   },
   deals: {
-    queryLimit: Number(env('DEALS_QUERY_LIMIT', 5000))
+    queryLimit: Number(env('DEALS_QUERY_LIMIT', 5000)),
+    feed: {
+      homeLimit: Number(env('DEALS_FEED_HOME_LIMIT', 5000)),
+      storeLimit: Number(env('DEALS_FEED_STORE_LIMIT', 2000)),
+      ttlSeconds: Number(env('DEALS_FEED_TTL_SECONDS', 600)),
+      previousRetentionSeconds: Number(env('DEALS_FEED_PREVIOUS_RETENTION_SECONDS', 1200)),
+      maxStoreCaches: Number(env('DEALS_FEED_MAX_STORE_CACHES', 16))
+    }
   },
   internalApiKey:  env('INTERNAL_API_KEY', 'change-me')
 };

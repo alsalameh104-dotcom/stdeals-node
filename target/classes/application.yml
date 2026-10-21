@@ -84,6 +84,12 @@ deals:
   query-limit: 5000
   latest-split-index: 50
   default-sync-status: PENDING
+  feed:
+    home-limit: 5000
+    store-limit: 2000
+    ttl-seconds: 600
+    previous-retention-seconds: 1200
+    max-store-caches: 16
 
 image-upload:
   url: http://localhost:8082/api/internal/images/upload
