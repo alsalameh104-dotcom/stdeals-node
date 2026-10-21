@@ -45,6 +45,19 @@ const loginLimiter=rateLimit({windowMs:10*60*1000,max:5,standardHeaders:true,leg
 const dealsLimiter=rateLimit({windowMs:60*1000,max:100,standardHeaders:true,legacyHeaders:false});
 // More restrictive budget for requests that execute PostgreSQL searches.
 const searchLimiter=rateLimit({windowMs:60*1000,max:30,standardHeaders:true,legacyHeaders:false});
+
+// Keep public search disabled until it is used by the frontend.
+// To enable later, set PUBLIC_SEARCH_ENABLED=true and restart Node.
+const publicSearchEnabled = process.env.PUBLIC_SEARCH_ENABLED === 'true';
+
+function blockDisabledPublicSearch(req, res, next) {
+    const search = req.query.search;
+    if (!publicSearchEnabled && search != null && String(search).trim() !== '') {
+        res.set('Cache-Control', 'no-store');
+        return res.status(404).json({ error: 'Disabled' });
+    }
+    next();
+}
 function conditionalSearchLimiter(req,res,next) {
     return typeof req.query.search === 'string' && req.query.search.trim()
         ? searchLimiter(req,res,next) : next();
@@ -93,7 +106,7 @@ app.post('/auth/login', async(req,res,next)=>{try{res.json({token:await login(re
 app.post('/auth/register', async(req,res,next)=>{try{res.json(await register(req.body.email,req.body.password));}catch(e){next(e);}});
 
 // Cursor-based public feed. Keep the legacy /api/deals response until React is migrated.
-app.get('/api/deals/page', conditionalSearchLimiter, async (req, res, next) => {
+app.get('/api/deals/page', blockDisabledPublicSearch, conditionalSearchLimiter, async (req, res, next) => {
     try {
         res.set('Cache-Control', 'no-store');
         res.json(await dealPagination.getPage({
@@ -106,7 +119,7 @@ app.get('/api/deals/page', conditionalSearchLimiter, async (req, res, next) => {
     } catch (err) { next(err); }
 });
 
-app.get('/api/deals/store/:storeName/page', conditionalSearchLimiter, async (req, res, next) => {
+app.get('/api/deals/store/:storeName/page', blockDisabledPublicSearch, conditionalSearchLimiter, async (req, res, next) => {
     try {
         res.set('Cache-Control', 'no-store');
         res.json(await dealPagination.getPage({
@@ -120,7 +133,13 @@ app.get('/api/deals/store/:storeName/page', conditionalSearchLimiter, async (req
 });
 
 // Advanced PostgreSQL search — matches Java /api/deals/search (page-based).
-app.get('/api/deals/search', searchLimiter, async (req,res,next) => {
+app.get('/api/deals/search', (req, res, next) => {
+    if (!publicSearchEnabled) {
+        res.set('Cache-Control', 'no-store');
+        return res.status(404).json({ error: 'disabled' });
+    }
+    return searchLimiter(req, res, next);
+}, async (req,res,next) => {
     try {
         res.set('Cache-Control', 'no-store');
         res.json(await dealSearch.searchDeals(req.query));
