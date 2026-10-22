@@ -10,7 +10,7 @@ async function load(store, limit) {
   const allowed = allowedPairs(store);
   if (!allowed.stores.length) return [];
 
-  const capped = Math.max(1, Math.min(limit, 5000));
+  const capped = Math.max(1, limit);
   const idsResult = await query(`
     SELECT d.id FROM deal d
     WHERE d.enabled = TRUE

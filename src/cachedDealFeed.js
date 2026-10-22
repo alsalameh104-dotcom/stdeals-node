@@ -46,7 +46,12 @@ async function currentSnapshot(entry, store) {
     if (entry.current && now < entry.refreshAfter) return entry.current;
     const prior = entry.current;
     try {
-      const maxDeals = Math.max(1, Math.min(store == null ? feedConfig.homeLimit : feedConfig.storeLimit, 5000));
+      const maxDeals = Math.max(
+          1,
+          store == null
+              ? feedConfig.homeLimit
+              : feedConfig.storeLimit
+      );
       const deals = await load(store, maxDeals);
       const fresh = {
         id: crypto.randomUUID().replaceAll('-', ''),
