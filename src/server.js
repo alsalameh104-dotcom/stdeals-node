@@ -113,6 +113,7 @@ app.get('/api/deals/page', blockDisabledPublicSearch, conditionalSearchLimiter, 
             store: req.query.store,
             type: req.query.type,
             search: req.query.search,
+            country: req.query.country,
             size: req.query.size,
             cursor: req.query.cursor
         }));
@@ -126,6 +127,7 @@ app.get('/api/deals/store/:storeName/page', blockDisabledPublicSearch, condition
             store: req.params.storeName,
             type: req.query.type,
             search: req.query.search,
+            country: req.query.country,
             size: req.query.size,
             cursor: req.query.cursor
         }));
@@ -150,12 +152,20 @@ app.get('/api/deals/search', (req, res, next) => {
 app.get('/api/deals/facets', async (req,res,next) => {
     try {
         res.set('Cache-Control', 'no-store');
-        res.json(await dealSearch.getPublicDealFacets());
+        res.json(await dealSearch.getPublicDealFacets(req.query.country));
     } catch (error) { next(error); }
 });
 
-app.get('/api/deals', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await dealPagination.getAll());}catch(e){next(e);}});
-app.get('/api/deals/store/:storeName', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await dealPagination.getAll(req.params.storeName));}catch(e){next(e);}});
+// Active store markets (ISO country codes) and counts for the market selector.
+app.get('/api/deals/countries', async(req,res,next)=>{
+    try {
+        res.set('Cache-Control','no-store');
+        res.json(await dealSearch.getPublicCountries());
+    } catch(e) { next(e); }
+});
+
+app.get('/api/deals', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await dealPagination.getAll(null,req.query.country));}catch(e){next(e);}});
+app.get('/api/deals/store/:storeName', async(req,res,next)=>{try{res.set('Cache-Control','public, max-age=600');res.json(await dealPagination.getAll(req.params.storeName,req.query.country));}catch(e){next(e);}});
 app.get('/api/deals/:id', async(req,res,next)=>{try{const d=await deals.getById(req.params.id);if(!d)return res.sendStatus(404);res.set('Cache-Control','public, max-age=600');res.json(d);}catch(e){next(e);}});
 
 // Matches Java GET /api/products/{productId}/prices.

@@ -2,8 +2,10 @@
 
 const { pool, query } = require('./db');
 const { DEAL_TYPES } = require('./models');
+const { readClients } = require('./config');
 const {
-  badRequest, allowedPairs, pairsClause, hydrateRows, DEAL_COLUMNS
+  badRequest, allowedPairs, pairsClause, hydrateRows, DEAL_COLUMNS,
+  normalizeCountry, isSupportedCountry
 } = require('./dealFeedData');
 
 const SORTS = {
@@ -47,9 +49,7 @@ function prepare(args = {}) {
   const type = args.type ? String(args.type).trim().toLowerCase() : null;
   if (type && !DEAL_TYPES.includes(type)) throw badRequest(`Unknown deal type: ${args.type}`);
 
-  const country = args.country == null || String(args.country).trim() === ''
-    ? null : String(args.country).trim().toUpperCase();
-  if (country && !/^[A-Z]{2}$/.test(country)) throw badRequest('country must be a two-letter country code');
+  const country = normalizeCountry(args.country);
   const minPriceUsd = decimalParam(args.minPriceUsd, 'minPriceUsd');
   const maxPriceUsd = decimalParam(args.maxPriceUsd, 'maxPriceUsd');
   if (minPriceUsd != null && maxPriceUsd != null && Number(minPriceUsd) > Number(maxPriceUsd)) {
@@ -57,7 +57,7 @@ function prepare(args = {}) {
   }
 
   const provider = args.provider == null || String(args.provider).trim() === ''
-    ? null : String(args.provider).trim().toLowerCase();
+      ? null : String(args.provider).trim().toLowerCase();
   const text = args.search == null ? '' : String(args.search).trim().toLowerCase();
   if (text.length > 120) throw badRequest('search must be at most 120 characters');
   if (text.length === 1) throw badRequest('search must contain at least 2 characters');
@@ -65,8 +65,8 @@ function prepare(args = {}) {
   const sortKey = args.sort == null ? 'random' : String(args.sort).trim().toLowerCase();
   if (!Object.hasOwn(SORTS, sortKey)) throw badRequest(`Unsupported sort: ${sortKey}`);
   const seed = args.seed == null || String(args.seed).trim() === ''
-    ? new Date().toISOString().slice(0, 10).replaceAll('-', '')
-    : String(args.seed).trim();
+      ? new Date().toISOString().slice(0, 10).replaceAll('-', '')
+      : String(args.seed).trim();
   if (!/^[A-Za-z0-9_-]{1,40}$/.test(seed)) throw badRequest('Invalid seed');
 
   let maxId = null;
@@ -151,8 +151,8 @@ async function searchDeals(args = {}) {
     let rows = [];
     if (total) {
       const sortSql = opts.sortKey === 'random'
-        ? `md5(d.id::text || ':' || ${'$' + (params.length + 1)}::text) ASC, d.id ASC`
-        : SORTS[opts.sortKey];
+          ? `md5(d.id::text || ':' || ${'$' + (params.length + 1)}::text) ASC, d.id ASC`
+          : SORTS[opts.sortKey];
       const values = [...params];
       if (opts.sortKey === 'random') values.push(opts.seed);
       values.push(opts.size, opts.page * opts.size);
@@ -162,7 +162,7 @@ async function searchDeals(args = {}) {
         SELECT ${DEAL_COLUMNS.split(',').map(x => 'd.' + x.trim()).join(', ')} FROM deal d
         WHERE ${where}
         ORDER BY ${sortSql}
-        LIMIT $${limitPos} OFFSET $${offsetPos}
+          LIMIT $${limitPos} OFFSET $${offsetPos}
       `, values);
       rows = await hydrateRows(result.rows, (sql, v) => client.query(sql, v));
     }
@@ -177,9 +177,15 @@ async function searchDeals(args = {}) {
 }
 
 /** Mirrors Java DealSearchService.getPublicDealFacets. */
-async function getPublicDealFacets() {
+async function getPublicDealFacets(country = null) {
+  const market = normalizeCountry(country);
   const { stores, types } = allowedPairs();
-  if (!stores.length) return { providers: [], dealTypes: [], totalDeals: 0 };
+  if (!stores.length || !isSupportedCountry(market)) {
+    return { providers: [], dealTypes: [], totalDeals: 0 };
+  }
+  const params = [stores, types];
+  const countryCondition = market ? 'AND d.country = $3' : '';
+  if (market) params.push(market);
   const response = await query(`
     SELECT d.store_name AS store_name, LOWER(d.deal_type::text) AS deal_type,
            COUNT(*) AS count
@@ -188,8 +194,9 @@ async function getPublicDealFacets() {
       AND d.status = 'ACTIVE'
       AND d.expiry_date > NOW()
       AND ${pairsClause()}
+      ${countryCondition}
     GROUP BY d.store_name, LOWER(d.deal_type::text)
-  `, [stores, types]);
+  `, params);
   const providers = new Map(), dealTypes = new Map();
   for (const row of response.rows) {
     const count = Number(row.count);
@@ -199,11 +206,45 @@ async function getPublicDealFacets() {
     dealTypes.set(upper, (dealTypes.get(upper) || 0) + count);
   }
   const sortedProviders = [...providers].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([name, count]) => ({ name, count }));
+      .map(([name, count]) => ({ name, count }));
   const sortedTypes = [...dealTypes].sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([name, count]) => ({ name, count }));
+      .map(([name, count]) => ({ name, count }));
   const totalDeals = [...providers.values()].reduce((sum, count) => sum + count, 0);
   return { providers: sortedProviders, dealTypes: sortedTypes, totalDeals };
 }
 
-module.exports = { searchDeals, getPublicDealFacets, prepare, pageResponse };
+/** Active market counts; only deals matching the enabled store's configured market. */
+async function getPublicCountries() {
+  const { stores, types } = allowedPairs();
+  if (!stores.length) return { countries: [], totalDeals: 0 };
+
+  const clients = readClients().clients || {};
+  const { rows } = await query(`
+    SELECT d.country, d.store_name, LOWER(d.deal_type::text) AS deal_type,
+           COUNT(*)::bigint AS count
+    FROM deal d
+    WHERE d.enabled = TRUE
+      AND d.status = 'ACTIVE'
+      AND d.expiry_date > NOW()
+      AND d.country IS NOT NULL
+      AND ${pairsClause()}
+    GROUP BY d.country, d.store_name, LOWER(d.deal_type::text)
+  `, [stores, types]);
+
+  const counts = new Map();
+  for (const row of rows) {
+    const country = String(row.country || '').trim().toUpperCase();
+    const client = clients[row.store_name];
+    const count = Number(row.count);
+    if (!/^[A-Z]{2}$/.test(country) || !client || client.enabled === false ||
+        String(client.country || '').trim().toUpperCase() !== country ||
+        !row.deal_type || !Number.isFinite(count) || count <= 0) continue;
+    counts.set(country, (counts.get(country) || 0) + count);
+  }
+  const countries = [...counts].map(([code, count]) => ({ code, count }))
+      .sort((a, b) => a.code.localeCompare(b.code));
+  const totalDeals = countries.reduce((sum, entry) => sum + entry.count, 0);
+  return { countries, totalDeals };
+}
+
+module.exports = { searchDeals, getPublicDealFacets, getPublicCountries, prepare, pageResponse };

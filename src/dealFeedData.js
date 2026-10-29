@@ -34,6 +34,29 @@ function allowedPairs(storeFilter = null, typeFilter = null) {
   return { stores, types };
 }
 
+/** Missing/blank/ALL means all markets; otherwise require an ISO-style market code. */
+function normalizeCountry(value) {
+  if (value == null) return null;
+  if (typeof value !== 'string' && typeof value !== 'number') {
+    throw badRequest('country must be a two-letter country code or ALL');
+  }
+  const country = String(value).trim().toUpperCase();
+  if (!country || country === 'ALL') return null;
+  if (!/^[A-Z]{2}$/.test(country)) {
+    throw badRequest('country must be a two-letter country code or ALL');
+  }
+  return country;
+}
+
+/** Avoid allocating feed slots for countries not configured on enabled clients. */
+function isSupportedCountry(country) {
+  if (country == null) return true;
+  return Object.values(readClients().clients || {}).some(client =>
+    client && client.enabled !== false &&
+    String(client.country || '').trim().toUpperCase() === country
+  );
+}
+
 function enabledStore(requested) {
   if (requested == null) return null;
   if (typeof requested !== 'string' || !/^[A-Za-z0-9_-]{1,60}$/.test(requested)) return null;
@@ -89,5 +112,6 @@ function feedResult(content, size, hasNext, nextCursor) {
 
 module.exports = {
   badRequest, httpError, allowedPairs, enabledStore, parsedType,
+  normalizeCountry, isSupportedCountry,
   pairsClause, hydrateRows, feedResult, DEAL_COLUMNS
 };

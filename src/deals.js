@@ -2,6 +2,13 @@ const { query, transaction } = require('./db');
 const cache = require('./cache');
 const { mapDeal } = require('./models');
 const { readClients } = require('./config');
+const { normalizeCountry } = require('./dealFeedData');
+
+// The provider's configured market takes precedence for public market discovery.
+function marketForWrite(deal) {
+  const configured = readClients().clients?.[deal.storeName]?.country;
+  return normalizeCountry(configured || deal.country);
+}
 
 const DEAL_SELECT = `
   SELECT
@@ -138,23 +145,37 @@ async function getAdmin(status) {
 }
 async function create(deal, source = 'MANUAL') {
   const r = await query(`INSERT INTO deal
-    (slug,title,description,price,original_price,currency,image_url,original_image_url,product_url,deal_type,store_name,location,enabled,expiry_date,source_url,deal_source,status,metadata)
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id`, [
-    deal.slug,deal.title,deal.description,deal.price ?? 0,deal.originalPrice ?? 0,deal.currency ?? 'JOD',deal.imageUrl,deal.originalImageUrl ?? null,deal.productUrl,deal.dealType?.toUpperCase(),deal.storeName,deal.location,deal.enabled ?? true,deal.expiryDate,deal.sourceUrl,source,deal.status ?? 'ACTIVE',deal.metadata ?? null]);
+                         (slug,title,description,price,original_price,currency,image_url,original_image_url,product_url,deal_type,store_name,location,enabled,expiry_date,source_url,deal_source,status,metadata,country)
+                         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) RETURNING id`, [
+    deal.slug,deal.title,deal.description,deal.price ?? 0,deal.originalPrice ?? 0,deal.currency ?? 'JOD',deal.imageUrl,deal.originalImageUrl ?? null,deal.productUrl,deal.dealType?.toUpperCase(),deal.storeName,deal.location,deal.enabled ?? true,deal.expiryDate,deal.sourceUrl,source,deal.status ?? 'ACTIVE',deal.metadata ?? null,marketForWrite(deal)]);
   cache.clear(); return getById(r.rows[0].id);
 }
 async function update(id, data) {
   const allowed = {
-    slug:'slug',title:'title',description:'description',price:'price',originalPrice:'original_price',currency:'currency',imageUrl:'image_url',originalImageUrl:'original_image_url',productUrl:'product_url',dealType:'deal_type',storeName:'store_name',location:'location',enabled:'enabled',expiryDate:'expiry_date',sourceUrl:'source_url',dealSource:'deal_source',status:'status',metadata:'metadata'
+    slug:'slug',title:'title',description:'description',price:'price',originalPrice:'original_price',currency:'currency',imageUrl:'image_url',originalImageUrl:'original_image_url',productUrl:'product_url',dealType:'deal_type',storeName:'store_name',location:'location',enabled:'enabled',expiryDate:'expiry_date',sourceUrl:'source_url',dealSource:'deal_source',status:'status',metadata:'metadata',country:'country'
   };
   const sets=[]; const vals=[];
-  for (const [k,col] of Object.entries(allowed)) if (data[k] !== undefined) { vals.push(k === 'dealType' || k === 'dealSource' || k === 'status' ? String(data[k]).toUpperCase() : data[k]); sets.push(`${col} = $${vals.length}`); }
+  for (const [k,col] of Object.entries(allowed)) if (data[k] !== undefined) {
+    if (k === 'country') continue; // Market is handled after the provider is resolved.
+    vals.push(k === 'dealType' || k === 'dealSource' || k === 'status' ? String(data[k]).toUpperCase() : data[k]);
+    sets.push(`${col} = $${vals.length}`);
+  }
+  if (data.country !== undefined || data.storeName !== undefined) {
+    let storeName = data.storeName;
+    if (storeName === undefined) {
+      const existing = await query('SELECT store_name FROM deal WHERE id = $1', [id]);
+      if (!existing.rowCount) throw Object.assign(new Error('Deal not found'), { status: 404 });
+      storeName = existing.rows[0].store_name;
+    }
+    vals.push(marketForWrite({storeName, country: data.country}));
+    sets.push(`country = $${vals.length}`);
+  }
   if (!sets.length) return getById(id);
   vals.push(id); const r=await query(`UPDATE deal SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${vals.length} RETURNING id`, vals);
   if (!r.rowCount) throw Object.assign(new Error('Deal not found'), {status:404}); cache.clear(); return getById(id);
 }
 async function remove(id) { await query('DELETE FROM deal WHERE id=$1', [id]); cache.clear(); }
-async function bulkCreate(deals) { return transaction(async client => { const out=[]; for(const d of deals){ const r=await client.query(`INSERT INTO deal (slug,title,description,price,original_price,currency,image_url,original_image_url,product_url,deal_type,store_name,location,enabled,expiry_date,source_url,deal_source,status,metadata) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id`, [d.slug,d.title,d.description,d.price??0,d.originalPrice??0,d.currency??'JOD',d.imageUrl,d.originalImageUrl??null,d.productUrl,d.dealType?.toUpperCase(),d.storeName,d.location,d.enabled??true,d.expiryDate,d.sourceUrl,d.dealSource??'MANUAL',d.status??'ACTIVE',d.metadata??null]); out.push(r.rows[0].id); } cache.clear(); return hydrate((await client.query(`${DEAL_SELECT} WHERE id = ANY($1::bigint[])`, [out])).rows); }); }
+async function bulkCreate(deals) { return transaction(async client => { const out=[]; for(const d of deals){ const r=await client.query(`INSERT INTO deal (slug,title,description,price,original_price,currency,image_url,original_image_url,product_url,deal_type,store_name,location,enabled,expiry_date,source_url,deal_source,status,metadata,country) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) RETURNING id`, [d.slug,d.title,d.description,d.price??0,d.originalPrice??0,d.currency??'JOD',d.imageUrl,d.originalImageUrl??null,d.productUrl,d.dealType?.toUpperCase(),d.storeName,d.location,d.enabled??true,d.expiryDate,d.sourceUrl,d.dealSource??'MANUAL',d.status??'ACTIVE',d.metadata??null,marketForWrite(d)]); out.push(r.rows[0].id); } cache.clear(); return hydrate((await client.query(`${DEAL_SELECT} WHERE id = ANY($1::bigint[])`, [out])).rows); }); }
 async function bulkStatus(ids,status){ const r=await query('UPDATE deal SET status=$1, updated_at=NOW() WHERE id=ANY($2::bigint[])',[status,ids]); cache.clear(); return r.rowCount; }
 async function pageable({provider,type,search,page=0,size=30}) {
   const cfg=readClients(); const stores=enabledStores(cfg); const where=['enabled=true','status=\'ACTIVE\'','expiry_date>NOW()','store_name=ANY($1::text[])']; const params=[stores];

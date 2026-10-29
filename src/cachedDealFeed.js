@@ -4,7 +4,8 @@ const crypto = require('node:crypto');
 const { load } = require('./dealFeedLoader');
 const { searchDeals } = require('./dealSearch');
 const {
-  badRequest, httpError, enabledStore, parsedType, feedResult
+  badRequest, httpError, enabledStore, parsedType, feedResult,
+  normalizeCountry, isSupportedCountry
 } = require('./dealFeedData');
 const { config } = require('./config');
 const { query } = require('./db');
@@ -13,13 +14,13 @@ const HOME = '__home__';
 const MAX_PAGE_SIZE = 50;
 const MAX_SEARCH_PAGES = 100;
 const feedConfig = config.deals.feed;
-const slots = new Map(); // Access-ordered LRU, at most 1 homepage + 16 stores.
+const slots = new Map(); // LRU slots for store/market combinations.
 
 const ttlMs = () => Math.max(30, feedConfig.ttlSeconds) * 1000;
 const retentionMs = () => Math.max(60, feedConfig.previousRetentionSeconds) * 1000;
 
-function slot(store) {
-  const key = store == null ? HOME : store;
+function slot(store, country) {
+  const key = (store == null ? HOME : store) + (country ? ':' + country : '');
   if (slots.has(key)) {
     const existing = slots.get(key);
     slots.delete(key);
@@ -37,7 +38,7 @@ function slot(store) {
 }
 
 // Promise-based single-flight: simultaneous cache misses share exactly one load.
-async function currentSnapshot(entry, store) {
+async function currentSnapshot(entry, store, country) {
   let now = Date.now();
   if (entry.current && now < entry.refreshAfter) return entry.current;
   if (entry.pending) return entry.pending;
@@ -52,7 +53,7 @@ async function currentSnapshot(entry, store) {
               ? feedConfig.homeLimit
               : feedConfig.storeLimit
       );
-      const deals = await load(store, maxDeals);
+      const deals = await load(store, maxDeals, country);
       const fresh = {
         id: crypto.randomUUID().replaceAll('-', ''),
         deals,
@@ -61,12 +62,12 @@ async function currentSnapshot(entry, store) {
       entry.previous = prior;
       entry.current = fresh;
       entry.refreshAfter = Date.now() + ttlMs();
-      console.info(`Refreshed public deal feed: store=${store == null ? HOME : store}, deals=${deals.length}`);
+      console.info(`Refreshed public deal feed: store=${store == null ? HOME : store}, country=${country || 'ALL'}, deals=${deals.length}`);
       return fresh;
     } catch (error) {
       if (prior && now < prior.createdAt + 30 * 60 * 1000) {
         entry.refreshAfter = Date.now() + 30_000;
-        console.warn(`Feed refresh failed; serving temporarily stale snapshot for store=${store}`, error);
+        console.warn(`Feed refresh failed; serving temporarily stale snapshot for store=${store}, country=${country || 'ALL'}`, error);
         return prior;
       }
       throw error;
@@ -88,10 +89,13 @@ function matchingSnapshot(entry, version) {
   return null;
 }
 
-function fingerprint(store, type, search) {
+function fingerprint(store, type, search, country) {
+  const parts = [store || '', type ? type.toUpperCase() : '', search.toLowerCase()];
+  // ALL retains the original fingerprint; selected countries cannot reuse its cursor.
+  if (country) parts.push(country);
   return crypto.createHash('sha256')
-    .update([store || '', type ? type.toUpperCase() : '', search.toLowerCase()].join('|'), 'utf8')
-    .digest('hex').slice(0, 16);
+      .update(parts.join('|'), 'utf8')
+      .digest('hex').slice(0, 16);
 }
 
 function encode(parts) {
@@ -118,7 +122,7 @@ function boundedNumber(input, maximum, field) {
   return n;
 }
 
-async function searchPage(store, type, text, cursor, size, filters) {
+async function searchPage(store, type, text, country, cursor, size, filters) {
   let page = 0;
   let seed, maxId;
   if (!cursor) {
@@ -139,6 +143,7 @@ async function searchPage(store, type, text, cursor, size, filters) {
     provider: store,
     type,
     search: text,
+    country,
     sort: 'random',
     seed,
     maxId,
@@ -151,24 +156,27 @@ async function searchPage(store, type, text, cursor, size, filters) {
 }
 
 /** Java CachedDealFeedService.getPage equivalent. */
-async function getPage({ store, type, search, cursor, size = 30 } = {}) {
+async function getPage({ store, type, search, country, cursor, size = 30 } = {}) {
   const n = Number(size);
   if (!Number.isInteger(n) || n < 1 || n > MAX_PAGE_SIZE) {
     throw badRequest(`size must be between 1 and ${MAX_PAGE_SIZE}`);
   }
+  const market = normalizeCountry(country);
   const canonicalStore = enabledStore(store);
-  if (store != null && canonicalStore == null) return feedResult([], n, false, null);
+  if ((store != null && canonicalStore == null) || !isSupportedCountry(market)) {
+    return feedResult([], n, false, null);
+  }
   const dealType = parsedType(type);
   const text = search == null ? '' : String(search).trim();
   if (text.length > 120) throw badRequest('Search is too long');
   if (text.length === 1) throw badRequest('Search must contain at least 2 characters');
-  const filters = fingerprint(canonicalStore, dealType, text.toLowerCase());
-  if (text) return searchPage(canonicalStore, dealType, text, cursor, n, filters);
+  const filters = fingerprint(canonicalStore, dealType, text.toLowerCase(), market);
+  if (text) return searchPage(canonicalStore, dealType, text, market, cursor, n, filters);
 
-  const entry = slot(canonicalStore);
+  const entry = slot(canonicalStore, market);
   let snapshot, offset = 0;
   if (!cursor) {
-    snapshot = await currentSnapshot(entry, canonicalStore);
+    snapshot = await currentSnapshot(entry, canonicalStore, market);
   } else {
     const parts = decode(cursor, 'F', 4, filters);
     if (!/^[a-f0-9]{32}$/.test(parts[1])) throw badRequest('Invalid cursor');
@@ -178,19 +186,20 @@ async function getPage({ store, type, search, cursor, size = 30 } = {}) {
   }
 
   const selected = dealType == null
-    ? snapshot.deals
-    : snapshot.deals.filter(deal => deal.dealType?.toLowerCase() === dealType);
+      ? snapshot.deals
+      : snapshot.deals.filter(deal => deal.dealType?.toLowerCase() === dealType);
   const start = Math.min(offset, selected.length);
   const end = Math.min(start + n, selected.length);
   const hasNext = end < selected.length;
   return feedResult(selected.slice(start, end), n, hasNext,
-    hasNext ? encode(['F', snapshot.id, String(end), filters]) : null);
+      hasNext ? encode(['F', snapshot.id, String(end), filters]) : null);
 }
 
-async function getAll(storeName = null) {
+async function getAll(storeName = null, country = null) {
+  const market = normalizeCountry(country);
   const store = enabledStore(storeName);
-  if (storeName != null && store == null) return [];
-  return (await currentSnapshot(slot(store), store)).deals;
+  if ((storeName != null && store == null) || !isSupportedCountry(market)) return [];
+  return (await currentSnapshot(slot(store, market), store, market)).deals;
 }
 
 // Available for optional manual invalidation; deliberately NOT connected to sync.

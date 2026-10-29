@@ -6,7 +6,7 @@ const { randomInt } = require('node:crypto');
 
 // Java DealFeedLoader: fetch latest IDs first, fetch images only for those IDs,
 // and shuffle ONCE per ten-minute snapshot rather than for each request.
-async function load(store, limit) {
+async function load(store, limit, country = null) {
   const allowed = allowedPairs(store);
   if (!allowed.stores.length) return [];
 
@@ -17,9 +17,12 @@ async function load(store, limit) {
       AND d.status = 'ACTIVE'
       AND d.expiry_date > NOW()
       AND ${pairsClause()}
+      ${country ? 'AND d.country = $4' : ''}
     ORDER BY d.updated_at DESC, d.id DESC
     LIMIT $3
-  `, [allowed.stores, allowed.types, capped]);
+  `, country
+    ? [allowed.stores, allowed.types, capped, country]
+    : [allowed.stores, allowed.types, capped]);
 
   if (!idsResult.rows.length) return [];
   const ids = idsResult.rows.map(row => String(row.id));
