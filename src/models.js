@@ -15,12 +15,42 @@ const DEAL_SOURCES = ['AUTO','MANUAL'];
 function mapImage(row) {
   return { id: row.id, imageUrl: row.image_url, originalImageUrl: row.original_image_url };
 }
+
+function getDealPath(id, title) {
+  if (id == null) return null;
+
+  let slug = String(title || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^\p{L}\p{N}\s-]/gu, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+  const chars = Array.from(slug);
+
+  if (chars.length > 100) {
+    slug = chars.slice(0, 100).join("");
+
+    const lastDash = slug.lastIndexOf("-");
+
+    if (lastDash > 30) {
+      slug = slug.slice(0, lastDash);
+    }
+
+    slug = slug.replace(/-+$/g, "");
+  }
+
+  return `/deal/${id}${slug ? `/${encodeURIComponent(slug)}` : ""}`;
+}
+
 function mapDeal(row, images = []) {
   if (!row) return null;
 
   return {
     id: Number(row.id),
     slug: row.slug,
+    dealUrl: getDealPath(row.id, row.title),
     title: row.title,
     description: row.description,
 
@@ -64,4 +94,4 @@ function mapDeal(row, images = []) {
     images
   };
 }
-module.exports = { DEAL_TYPES, DEAL_STATUSES, DEAL_SOURCES, mapDeal, mapImage };
+module.exports = { DEAL_TYPES, DEAL_STATUSES, DEAL_SOURCES, mapDeal, mapImage, getDealPath };

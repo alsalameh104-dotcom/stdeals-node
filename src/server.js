@@ -14,6 +14,7 @@ const dealPagination = require('./dealPagination');
 const dealSearch = require('./dealSearch');
 const productPrices = require('./productPrices');
 const multer = require('multer');
+const { getDealPath } = require("./models");
 
 fs.mkdirSync(config.imageRoot, { recursive: true });
 
