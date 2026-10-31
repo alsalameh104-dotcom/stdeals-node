@@ -10,6 +10,7 @@ const {
 
 const SORTS = {
   random: null,
+  relevance: null,
   newest: 'd.updated_at DESC, d.id DESC',
   oldest: 'd.updated_at ASC, d.id ASC',
   price_asc: 'd.price_usd ASC, d.id DESC',
@@ -58,12 +59,16 @@ function prepare(args = {}) {
 
   const provider = args.provider == null || String(args.provider).trim() === ''
       ? null : String(args.provider).trim().toLowerCase();
-  const text = args.search == null ? '' : String(args.search).trim().toLowerCase();
+  const text = args.search == null ? '' : String(args.search).trim().toLowerCase().replace(/\s+/g, ' ');
   if (text.length > 120) throw badRequest('search must be at most 120 characters');
   if (text.length === 1) throw badRequest('search must contain at least 2 characters');
+  // Match each distinct word anywhere in title, retailer name or deal type.
+  const terms = text ? [...new Set(text.split(' '))] : [];
+  if (terms.length > 12) throw badRequest('search must contain at most 12 distinct words');
 
   const sortKey = args.sort == null ? 'random' : String(args.sort).trim().toLowerCase();
   if (!Object.hasOwn(SORTS, sortKey)) throw badRequest(`Unsupported sort: ${sortKey}`);
+  if (sortKey === 'relevance' && !text) throw badRequest('relevance sorting requires a search term');
   const seed = args.seed == null || String(args.seed).trim() === ''
       ? new Date().toISOString().slice(0, 10).replaceAll('-', '')
       : String(args.seed).trim();
@@ -75,11 +80,11 @@ function prepare(args = {}) {
     if (!/^\d{1,19}$/.test(value) || BigInt(value) > 9223372036854775807n) throw badRequest('Invalid search cursor');
     maxId = value;
   }
-  return { page, size, type, provider, country, minPriceUsd, maxPriceUsd, text, sortKey, seed, maxId };
+  return { page, size, type, provider, country, minPriceUsd, maxPriceUsd, text, terms, sortKey, seed, maxId };
 }
 
 function sortMetadata(sortKey) {
-  const sorted = sortKey !== 'random';
+  const sorted = sortKey !== 'random' && sortKey !== 'relevance';
   return { empty: !sorted, sorted, unsorted: !sorted };
 }
 
@@ -105,6 +110,14 @@ function pageResponse(content, totalElements, opts) {
   };
 }
 
+// Match literal text, not SQL wildcard patterns supplied by a visitor.
+function escapeLike(value) {
+  return value.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
+const TITLE_LOWER = "LOWER(COALESCE(d.title, ''))";
+const STORE_LOWER = "LOWER(COALESCE(d.store_name, ''))";
+
 function filters(opts) {
   const allowed = allowedPairs(opts.provider, opts.type);
   const params = [allowed.stores, allowed.types];
@@ -117,29 +130,52 @@ function filters(opts) {
   const add = value => { params.push(value); return `$${params.length}`; };
   if (opts.country) clauses.push(`d.country = ${add(opts.country)}`);
   if (opts.maxId != null) clauses.push(`d.id <= ${add(opts.maxId)}::bigint`);
-  if (opts.text) {
-    const escaped = opts.text.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
-    const pattern = add(`%${escaped}%`);
-    const types = DEAL_TYPES.filter(t => t.includes(opts.text));
-    const parts = [
-      `LOWER(d.title) LIKE ${pattern} ESCAPE '\\'`,
-      `LOWER(d.store_name) LIKE ${pattern} ESCAPE '\\'`
-    ];
-    if (types.length) parts.push(`LOWER(d.deal_type::text) = ANY(${add(types)}::text[])`);
-    clauses.push(`(${parts.join(' OR ')})`);
+  // Every query word must match, but words can appear in any order.
+  // The existing provider/type filters, country, and pagination remain unchanged.
+  const titleConditions = [];
+  for (const term of opts.terms) {
+    const pattern = add(`%${escapeLike(term)}%`);
+    const titleMatch = `${TITLE_LOWER} LIKE ${pattern} ESCAPE '\\'`;
+    const storeMatch = `${STORE_LOWER} LIKE ${pattern} ESCAPE '\\'`;
+    titleConditions.push(titleMatch);
+    const alternatives = [titleMatch, storeMatch];
+    const matchingTypes = DEAL_TYPES.filter(t => t.includes(term));
+    if (matchingTypes.length) {
+      alternatives.push(`LOWER(d.deal_type::text) = ANY(${add(matchingTypes)}::text[])`);
+    }
+    clauses.push(`(${alternatives.join(' OR ')})`);
   }
   if (opts.minPriceUsd != null || opts.maxPriceUsd != null || opts.sortKey.startsWith('price_')) {
     clauses.push('d.price_usd IS NOT NULL');
   }
   if (opts.minPriceUsd != null) clauses.push(`d.price_usd >= ${add(opts.minPriceUsd)}::numeric`);
   if (opts.maxPriceUsd != null) clauses.push(`d.price_usd <= ${add(opts.maxPriceUsd)}::numeric`);
-  return { where: clauses.join(' AND '), params, allowed };
+  return { where: clauses.join(' AND '), params, allowed, titleConditions };
+}
+
+// Same relevance buckets as Java: exact title, prefix, phrase, all title words,
+// partial title word matches, then matches only in retailer name or deal type.
+function relevanceOrder(opts, values, titleConditions) {
+  const add = value => { values.push(value); return `$${values.length}`; };
+  const exact = add(opts.text);
+  const prefix = add(`${escapeLike(opts.text)}%`);
+  const phrase = add(`%${escapeLike(opts.text)}%`);
+  const allTitle = titleConditions.map(t => `(${t})`).join(' AND ');
+  const someTitle = titleConditions.map(t => `(${t})`).join(' OR ');
+  return `CASE
+    WHEN ${TITLE_LOWER} = ${exact} THEN 0
+    WHEN ${TITLE_LOWER} LIKE ${prefix} ESCAPE '\\' THEN 1
+    WHEN ${TITLE_LOWER} LIKE ${phrase} ESCAPE '\\' THEN 2
+    WHEN (${allTitle}) THEN 3
+    WHEN (${someTitle}) THEN 4
+    ELSE 5
+  END ASC, d.updated_at DESC, d.id DESC`;
 }
 
 /** Mirrors Java DealSearchService.getActivePageableDeals. */
 async function searchDeals(args = {}) {
   const opts = prepare(args);
-  const { where, params, allowed } = filters(opts);
+  const { where, params, allowed, titleConditions } = filters(opts);
   if (!allowed.stores.length) return pageResponse([], 0, opts);
 
   const client = await pool.connect();
@@ -150,11 +186,17 @@ async function searchDeals(args = {}) {
     const total = Number(totalResult.rows[0].total);
     let rows = [];
     if (total) {
-      const sortSql = opts.sortKey === 'random'
-          ? `md5(d.id::text || ':' || ${'$' + (params.length + 1)}::text) ASC, d.id ASC`
-          : SORTS[opts.sortKey];
       const values = [...params];
-      if (opts.sortKey === 'random') values.push(opts.seed);
+      let sortSql;
+      if (opts.sortKey === 'random') {
+        const seedPos = values.length + 1;
+        values.push(opts.seed);
+        sortSql = `md5(d.id::text || ':' || $${seedPos}::text) ASC, d.id ASC`;
+      } else if (opts.sortKey === 'relevance') {
+        sortSql = relevanceOrder(opts, values, titleConditions);
+      } else {
+        sortSql = SORTS[opts.sortKey];
+      }
       values.push(opts.size, opts.page * opts.size);
       const limitPos = values.length - 1;
       const offsetPos = values.length;
