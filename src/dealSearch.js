@@ -11,8 +11,8 @@ const {
 const SORTS = {
   random: null,
   relevance: null,
-  newest: 'd.updated_at DESC, d.id DESC',
-  oldest: 'd.updated_at ASC, d.id ASC',
+  newest: 'd.created_at DESC, d.id DESC',
+  oldest: 'd.created_at ASC, d.id ASC',
   price_asc: 'd.price_usd ASC, d.id DESC',
   price_desc: 'd.price_usd DESC, d.id DESC',
   title_asc: 'd.title ASC, d.id DESC',
