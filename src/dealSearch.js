@@ -223,7 +223,7 @@ async function getPublicDealFacets(country = null) {
   const market = normalizeCountry(country);
   const { stores, types } = allowedPairs();
   if (!stores.length || !isSupportedCountry(market)) {
-    return { providers: [], dealTypes: [], totalDeals: 0 };
+    return { providers: [], dealTypes: [], dealTypesByStore: {}, totalDeals: 0 };
   }
   const params = [stores, types];
   const countryCondition = market ? 'AND d.country = $3' : '';
@@ -239,20 +239,29 @@ async function getPublicDealFacets(country = null) {
       ${countryCondition}
     GROUP BY d.store_name, LOWER(d.deal_type::text)
   `, params);
-  const providers = new Map(), dealTypes = new Map();
+  const providers = new Map(), dealTypes = new Map(), typesByStore = new Map();
   for (const row of response.rows) {
     const count = Number(row.count);
     if (!row.store_name || !row.deal_type || count <= 0) continue;
     providers.set(row.store_name, (providers.get(row.store_name) || 0) + count);
     const upper = String(row.deal_type).toUpperCase();
     dealTypes.set(upper, (dealTypes.get(upper) || 0) + count);
+    if (!typesByStore.has(row.store_name)) typesByStore.set(row.store_name, new Map());
+    const storeTypes = typesByStore.get(row.store_name);
+    storeTypes.set(upper, (storeTypes.get(upper) || 0) + count);
   }
   const sortedProviders = [...providers].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
       .map(([name, count]) => ({ name, count }));
   const sortedTypes = [...dealTypes].sort((a, b) => a[0].localeCompare(b[0]))
       .map(([name, count]) => ({ name, count }));
+  // The per-store categories come from the same aggregation query: no extra DB call.
+  const dealTypesByStore = Object.fromEntries([...typesByStore.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([store, categories]) => [store, [...categories.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, count]) => ({ name, count }))]));
   const totalDeals = [...providers.values()].reduce((sum, count) => sum + count, 0);
-  return { providers: sortedProviders, dealTypes: sortedTypes, totalDeals };
+  return { providers: sortedProviders, dealTypes: sortedTypes, dealTypesByStore, totalDeals };
 }
 
 /** Active market counts; only deals matching the enabled store's configured market. */
